@@ -1,10 +1,10 @@
-# Team-Moongsal-Travel.zip-BE
+# Team-Moongsal-Travelogues-BE
 ![KakaoTalk_Photo_2023-03-14-23-10-09](https://user-images.githubusercontent.com/86584887/225027850-6837caad-cb6f-4802-8f9b-cc5a89fe93db.png)
 
 
 ### <div align="center">"내가 가진 여행 기억의 모음집" ✈️</div>
 <!-- ### <div align="center">[<img src="https://img.shields.io/badge/realease-v0.0.1-4285F4?style=flat-square&logo=Google Chrome&logoColor=white">](https://travel-zip.vercel.app/)</div> -->
-### <div align="center">[✈️ Travel.zip](https://travel-zip.vercel.app)</div>
+### <div align="center">[✈️ Travelogues](https://travel-zip.vercel.app)</div>
 
 
 
