@@ -2,6 +2,7 @@ package shop.zip.travel.domain.member.service;
 
 import static shop.zip.travel.domain.member.dto.request.MemberRegisterReq.toMember;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import shop.zip.travel.global.security.JwtTokenProvider;
 import shop.zip.travel.global.util.RedisUtil;
 
 @Service
+@RequiredArgsConstructor
 public class MemberService {
 
   private final MemberRepository memberRepository;
@@ -26,23 +28,16 @@ public class MemberService {
   private final JwtTokenProvider jwtTokenProvider;
   private final PasswordEncoder passwordEncoder;
 
-  public MemberService(MemberRepository memberRepository, RedisUtil redisUtil,
-      JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder) {
-    this.memberRepository = memberRepository;
-    this.redisUtil = redisUtil;
-    this.jwtTokenProvider = jwtTokenProvider;
-    this.passwordEncoder = passwordEncoder;
-  }
-
   @Transactional(readOnly = true)
-  public boolean checkDuplicatedNickname(String nickname) {
+  public boolean checkNicknameDuplication(String nickname) {
     return memberRepository.existsByNickname(nickname);
   }
 
   @Transactional
-  public void createMember(MemberRegisterReq memberRegisterReq) {
+  public Long createMember(MemberRegisterReq memberRegisterReq) {
     Member member = toMember(memberRegisterReq, passwordEncoder);
-    memberRepository.save(member);
+    Member savedMember = memberRepository.save(member);
+    return savedMember.getId();
   }
 
   @Transactional

@@ -33,7 +33,7 @@ public class SecurityConfig {
         .requestMatchers("/docs/rest-docs.html")
         .requestMatchers(HttpMethod.OPTIONS, "/api/**")
         .requestMatchers("/api/emails/**")
-        .requestMatchers("/api/members/check/nickname")
+        .requestMatchers("/api/members/check/**")
         .requestMatchers("/api/members/register")
         .requestMatchers("/api/members/login")
         .requestMatchers("/api/members/refresh")

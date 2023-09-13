@@ -21,14 +21,21 @@ public record MemberRegisterReq(
 
     @NotBlank
     @Pattern(regexp = "^[0-9]{4}$")
-    String birthYear
+    String birthYear,
+
+    @NotBlank
+    String profileImageUrl
 ) {
 
   public static Member toMember(MemberRegisterReq memberRegisterReq, PasswordEncoder passwordEncoder) {
-    return new Member(
-        memberRegisterReq.email(),
-        passwordEncoder.encode(memberRegisterReq.password()),
-        memberRegisterReq.nickname(),
-        memberRegisterReq.birthYear());
+    String encodedPassword = passwordEncoder.encode(memberRegisterReq.password());
+    return Member.builder()
+        .email(memberRegisterReq.email())
+        .password(encodedPassword)
+        .nickname(memberRegisterReq.nickname())
+        .birthYear(memberRegisterReq.birthYear())
+        .profileImageUrl(memberRegisterReq.profileImageUrl())
+        .build();
   }
+
 }
