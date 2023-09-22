@@ -2,50 +2,44 @@ package shop.zip.travel.global.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import shop.zip.travel.domain.member.exception.InvalidRefreshTokenException;
 import shop.zip.travel.global.error.BusinessException;
 import shop.zip.travel.global.error.ErrorCode;
 import shop.zip.travel.global.error.exception.JsonNotParsingException;
+import shop.zip.travel.global.util.Constants;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
   private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-  private final String accessTokenSecretKey;
-  private final String refreshTokenSecretKey;
-
-  private final long ACCESS_TOKEN_EXPIRED_TIME = Duration.ofMinutes(1).toMillis();
-  private final long REFRESH_TOKEN_EXPIRED_TIME = Duration.ofMinutes(5).toMillis();
-
   private final CustomUserDetailsService customUserDetailsService;
 
-  public JwtTokenProvider(
-      @Value("${spring.jwt.secret-key[0].accessToken}") String accessTokenSecretKey,
-      @Value("${spring.jwt.secret-key[1].refreshToken}") String refreshTokenSecretKey,
-      CustomUserDetailsService customUserDetailsService) {
-    this.accessTokenSecretKey = accessTokenSecretKey;
-    this.refreshTokenSecretKey = refreshTokenSecretKey;
-    this.customUserDetailsService = customUserDetailsService;
-  }
+  private final byte[] SECRET_KEY_BYTE_ARRAY = Constants.getSecretKey().getBytes();
+  private final long ACCESS_TOKEN_EXPIRED_TIME = Duration.ofMinutes(1).toMillis();
+
+
+
 
   public String removeBearer(String bearerToken) {
     return bearerToken.substring("Bearer ".length());
@@ -54,7 +48,7 @@ public class JwtTokenProvider {
   public boolean validateAccessToken(String token) {
     try {
       String accessToken = removeBearer(token);
-      Jwts.parser().setSigningKey(accessTokenSecretKey).parseClaimsJws(accessToken);
+      Jwts.parserBuilder().setSigningKey(SECRET_KEY_BYTE_ARRAY);
       return true;
     } catch (SignatureException ex) {
       log.error("유효하지 않은 JWT 서명");
@@ -75,7 +69,7 @@ public class JwtTokenProvider {
   }
 
   public String getMemberId(String accessToken) {
-    return Jwts.parser().setSigningKey(accessTokenSecretKey).parseClaimsJws(accessToken)
+    return Jwts.parser().setSigningKey(SECRET_KEY_BYTE_ARRAY).parseClaimsJws(accessToken)
         .getBody().get("memberId").toString();
   }
 
@@ -86,54 +80,23 @@ public class JwtTokenProvider {
   }
 
   public String createAccessToken(Long memberId) {
-    Claims claims = Jwts.claims();
-    claims.setSubject("Travel.zip");
-    claims.put("memberId", memberId);
+    Date nowDate = new Date();
+    Date expiryDate = new Date(nowDate.getTime() + ACCESS_TOKEN_EXPIRED_TIME);
+    Key key = Keys.hmacShaKeyFor(SECRET_KEY_BYTE_ARRAY);
 
-    Date now = new Date();
-    Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRED_TIME);
+    Map<String, Object> customClaim = new HashMap<>();
+    customClaim.put("memberId", memberId);
 
     return Jwts.builder()
-        .setClaims(claims)
-        .setIssuedAt(now)
+        .setIssuer("Travelogues")
         .setExpiration(expiryDate)
-        .signWith(SignatureAlgorithm.HS512, accessTokenSecretKey)
+        .setIssuedAt(nowDate)
+        .addClaims(customClaim)
+        .signWith(key, SignatureAlgorithm.HS256)
         .compact();
   }
 
-  public boolean validateRefreshToken(String refreshToken) {
-    try {
-      Jwts.parser().setSigningKey(refreshTokenSecretKey).parseClaimsJws(refreshToken);
-      return true;
-    } catch (SignatureException ex) {
-      log.info("유효하지 않은 JWT 서명");
-      throw new BusinessException(ErrorCode.TOKEN_EXCEPTION);
-    } catch (MalformedJwtException ex) {
-      log.info("유효하지 않은 JWT 토큰");
-      throw new BusinessException(ErrorCode.TOKEN_EXCEPTION);
-    } catch (ExpiredJwtException ex) {
-      log.info("만료된 JWT 토큰");
-      throw new InvalidRefreshTokenException(ErrorCode.INVALID_REFRESH_TOKEN);
-    } catch (UnsupportedJwtException ex) {
-      log.info("지원하지 않는 JWT 토큰");
-      throw new BusinessException(ErrorCode.TOKEN_EXCEPTION);
-    } catch (IllegalArgumentException ex) {
-      log.info("비어있는 토큰");
-      throw new BusinessException(ErrorCode.TOKEN_EXCEPTION);
-    }
-  }
 
-  public String createRefreshToken() {
-    Date now = new Date();
-    Date expiryDate = new Date(now.getTime() + REFRESH_TOKEN_EXPIRED_TIME);
-
-    return Jwts.builder()
-        .setSubject("Travel.zip")
-        .setIssuedAt(now)
-        .setExpiration(expiryDate)
-        .signWith(SignatureAlgorithm.HS512, refreshTokenSecretKey)
-        .compact();
-  }
 
   public String getMemberIdUsingDecode(String accessToken) {
     String[] chunks = accessToken.split("\\.");

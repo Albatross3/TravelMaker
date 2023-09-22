@@ -6,25 +6,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shop.zip.travel.domain.member.dto.request.AccessTokenReissueReq;
 import shop.zip.travel.domain.member.dto.request.MemberLoginReq;
 import shop.zip.travel.domain.member.dto.request.MemberRegisterReq;
-import shop.zip.travel.domain.member.dto.response.MemberLoginRes;
+import shop.zip.travel.domain.member.dto.response.MemberLoginResponse;
 import shop.zip.travel.domain.member.entity.Member;
-import shop.zip.travel.domain.member.exception.InvalidRefreshTokenException;
 import shop.zip.travel.domain.member.exception.MemberNotFoundException;
 import shop.zip.travel.domain.member.exception.PasswordNotMatchException;
 import shop.zip.travel.domain.member.repository.MemberRepository;
 import shop.zip.travel.global.error.ErrorCode;
 import shop.zip.travel.global.security.JwtTokenProvider;
-import shop.zip.travel.global.util.RedisUtil;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
   private final MemberRepository memberRepository;
-  private final RedisUtil redisUtil;
   private final JwtTokenProvider jwtTokenProvider;
   private final PasswordEncoder passwordEncoder;
 
@@ -41,7 +37,7 @@ public class MemberService {
   }
 
   @Transactional
-  public MemberLoginRes login(MemberLoginReq memberLoginReq) {
+  public MemberLoginResponse login(MemberLoginReq memberLoginReq) {
     Member member = findMemberByEmail(memberLoginReq.email());
 
     if (!passwordEncoder.matches(memberLoginReq.password(), member.getPassword())) {
@@ -49,36 +45,8 @@ public class MemberService {
     }
 
     String accessToken = jwtTokenProvider.createAccessToken(member.getId());
-    String refreshToken = jwtTokenProvider.createRefreshToken();
 
-    redisUtil.setDataWithExpire(String.valueOf(member.getId()), refreshToken, 120L);
-
-    return new MemberLoginRes(accessToken, refreshToken);
-  }
-
-  // TODO accessToken 에서 memberId 를 가져오는 방법을 refactoring 해보기
-  @Transactional
-  public MemberLoginRes recreateAccessAndRefreshToken(AccessTokenReissueReq accessTokenReissueReq) {
-
-    String accessToken = accessTokenReissueReq.accessToken();
-    String refreshToken = accessTokenReissueReq.refreshToken();
-    String memberId = jwtTokenProvider.getMemberIdUsingDecode(accessToken);
-
-    if (jwtTokenProvider.validateRefreshToken(accessTokenReissueReq.refreshToken()) &&
-        redisUtil.getData(memberId).equals(refreshToken)) {
-      redisUtil.deleteData(memberId);
-      String newAccessToken = jwtTokenProvider.createAccessToken(Long.parseLong(memberId));
-      String newRefreshToken = jwtTokenProvider.createRefreshToken();
-      redisUtil.setDataWithExpire(memberId, newRefreshToken, 120L);
-
-      return new MemberLoginRes(newAccessToken, newRefreshToken);
-    } else {
-      throw new InvalidRefreshTokenException(ErrorCode.INVALID_REFRESH_TOKEN);
-    }
-  }
-
-  public void deleteRefreshToken(Long memberId) {
-    redisUtil.deleteData(String.valueOf(memberId));
+    return new MemberLoginResponse(accessToken);
   }
 
   public Member getMember(Long id) {
