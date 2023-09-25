@@ -9,9 +9,10 @@ import shop.zip.travel.domain.member.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+  boolean existsByNickname(String nickname);
+
   Optional<Member> findByEmail(String email);
 
-  boolean existsByNickname(String nickname);
 
   @Query(
     "select new shop.zip.travel.domain.member.dto.response.MemberInfoRes("

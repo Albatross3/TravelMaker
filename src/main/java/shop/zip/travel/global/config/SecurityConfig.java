@@ -1,6 +1,5 @@
 package shop.zip.travel.global.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,19 +9,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import shop.zip.travel.global.filter.JwtAuthenticationFilter;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-  private final JwtTokenProvider jwtTokenProvider;
-  private final ObjectMapper objectMapper;
-
-  public SecurityConfig(JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper) {
-    this.jwtTokenProvider = jwtTokenProvider;
-    this.objectMapper = objectMapper;
+  @Bean
+  public JwsAuthenticationFilter jwsAuthenticationFilter() {
+    return new JwsAuthenticationFilter();
   }
 
   @Bean
@@ -36,10 +31,10 @@ public class SecurityConfig {
             .requestMatchers("/api/members/**").permitAll()
             .requestMatchers("/docs/rest-docs.html").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/travelogues/**").permitAll()
+            .requestMatchers("/token").permitAll()
             .anyRequest().authenticated()
         )
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, objectMapper),
-            UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwsAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     return http.build();

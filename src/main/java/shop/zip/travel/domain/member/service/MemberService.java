@@ -14,14 +14,14 @@ import shop.zip.travel.domain.member.exception.MemberNotFoundException;
 import shop.zip.travel.domain.member.exception.PasswordNotMatchException;
 import shop.zip.travel.domain.member.repository.MemberRepository;
 import shop.zip.travel.global.error.ErrorCode;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsManager;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
   private final MemberRepository memberRepository;
-  private final JwtTokenProvider jwtTokenProvider;
+  private final JwsManager jwsManager;
   private final PasswordEncoder passwordEncoder;
 
   @Transactional(readOnly = true)
@@ -44,7 +44,7 @@ public class MemberService {
       throw new PasswordNotMatchException(ErrorCode.PASSWORD_NOT_MATCH);
     }
 
-    String accessToken = jwtTokenProvider.createAccessToken(member.getId());
+    String accessToken = jwsManager.createAccessToken(member.getId());
 
     return new MemberLoginResponse(accessToken);
   }
