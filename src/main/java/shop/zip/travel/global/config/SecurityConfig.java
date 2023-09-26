@@ -29,8 +29,7 @@ public class SecurityConfig {
         .logout().disable()
         .authorizeHttpRequests(requests -> requests
             .requestMatchers(HttpMethod.OPTIONS).permitAll()
-            .requestMatchers("/api/members/**").permitAll()
-            .requestMatchers("/docs/rest-docs.html").permitAll()
+            .requestMatchers("/api/member/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/travelogues/**").permitAll()
             .anyRequest().authenticated()
         )

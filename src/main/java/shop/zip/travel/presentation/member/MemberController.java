@@ -19,12 +19,12 @@ import shop.zip.travel.domain.member.service.MemberService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
+@RequestMapping("/api/member")
 public class MemberController {
 
   private final MemberService memberService;
 
-  @GetMapping("/check/{email}")
+  @GetMapping("/email/{email}")
   public ResponseEntity<DuplicatedEmailCheckResponse> checkEmailDuplication(
       @PathVariable("email") String email
   ) {
@@ -32,7 +32,7 @@ public class MemberController {
     return ResponseEntity.ok(new DuplicatedEmailCheckResponse(isDuplicated));
   }
 
-  @GetMapping("/check/{nickname}")
+  @GetMapping("/nickname/{nickname}")
   public ResponseEntity<DuplicatedNicknameCheckResponse> checkNicknameDuplication(
       @PathVariable("nickname") String nickname
   ) {
