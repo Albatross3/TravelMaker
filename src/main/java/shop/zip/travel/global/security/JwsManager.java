@@ -1,8 +1,6 @@
 package shop.zip.travel.global.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
@@ -34,17 +32,26 @@ public class JwsManager {
         .compact();
   }
 
-  public String getMemberIdFromAccessToken(String jws) {
-    Jwt<Header, Claims> parsedJws = validateAccessToken(jws);
-    return parsedJws.getBody()
-        .get("memberId")
-        .toString();
+  public boolean validateAccessToken(String jws) {
+    try {
+      Jwts.parserBuilder()
+          .setSigningKey(jwsProperties.getSecretKey())
+          .build()
+          .parseClaimsJwt(jws);
+      return true;
+    } catch (JwtException ex) {
+      // TODO 비어있거나(인증 필요없는 요청) 만료기간이 되었거나 하는 요청들에 대해 client 전달 어떻게 할 것인가?
+    }
+    return false;
   }
 
-  private Jwt<Header,Claims> validateAccessToken(String jws) {
+  public String getMemberIdFromAccessToken(String jws) {
     return Jwts.parserBuilder()
         .setSigningKey(jwsProperties.getSecretKey())
         .build()
-        .parseClaimsJwt(jws);
+        .parseClaimsJwt(jws)
+        .getBody()
+        .get("memberId")
+        .toString();
   }
 }

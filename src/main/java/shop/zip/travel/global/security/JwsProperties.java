@@ -20,7 +20,6 @@ public class JwsProperties {
 
   @PostConstruct
   private void makeSecretKey() {
-    System.out.println(stringSecretKey);
     secretKey = Keys.hmacShaKeyFor(stringSecretKey.getBytes());
   }
 }
