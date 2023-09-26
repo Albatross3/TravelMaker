@@ -28,7 +28,7 @@ import shop.zip.travel.domain.member.entity.Member;
 import shop.zip.travel.domain.member.repository.MemberRepository;
 import shop.zip.travel.domain.post.travelogue.DummyGenerator;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsManager;
 
 
 @AutoConfigureRestDocs
@@ -40,7 +40,7 @@ class MemberMyTravelogueControllerTest {
   private static final String tokenName = "AccessToken";
 
   @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  private JwsManager jwsManager;
 
   @Autowired
   private MockMvc mockMvc;
@@ -60,7 +60,7 @@ class MemberMyTravelogueControllerTest {
     travelogueRepository.save(
         DummyGenerator.createNotPublishedTravelogueWithSubTravelogues(new ArrayList<>(), member)
     );
-    token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    token = "Bearer " + jwsManager.createAccessToken(member.getId());
   }
 
   @Test

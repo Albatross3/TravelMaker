@@ -25,7 +25,7 @@ public class JwsAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
     String jws = getJwsFromRequest(request);
-    if (jwsManager.validateAccessToken(jws)) {
+    if (StringUtils.hasText(jws) && jwsManager.validateAccessToken(jws)) {
       String memberId = jwsManager.getMemberIdFromAccessToken(jws);
       UserDetails userDetails = customUserDetailsService.loadUserByUsername(memberId);
       Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(userDetails,

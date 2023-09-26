@@ -23,7 +23,7 @@ import shop.zip.travel.domain.member.repository.MemberRepository;
 import shop.zip.travel.domain.post.travelogue.DummyGenerator;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsManager;
 
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
@@ -41,7 +41,7 @@ class BookmarkControllerTest {
   private TravelogueRepository travelogueRepository;
 
   @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  private JwsManager jwsManager;
 
   private Member member;
   private Travelogue savedTravelogue;
@@ -58,7 +58,7 @@ class BookmarkControllerTest {
   @Test
   void add_bookmark() throws Exception {
 
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
 
     mockMvc.perform(put("/api/travelogues/{travelogueId}/bookmarks", savedTravelogue.getId())
             .header("AccessToken", token))

@@ -29,7 +29,7 @@ import shop.zip.travel.domain.post.travelogue.entity.Like;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueLikeRepository;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsManager;
 
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
@@ -44,7 +44,7 @@ class TravelogueLikeControllerTest {
   private TravelogueRepository travelogueRepository;
 
   @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  private JwsManager jwsManager;
 
   @Autowired
   private TravelogueLikeRepository travelogueLikeRepository;
@@ -75,7 +75,7 @@ class TravelogueLikeControllerTest {
   @DisplayName("좋아요를 누르지 않은 게시물에 대해 좋아요를 누를 수 있다.")
   void test_add_like() throws Exception {
 
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
 
     mockMvc.perform(put("/api/travelogues/{travelogueId}/likes", notLikeTravelogue.getId())
             .header("AccessToken", token))
@@ -99,7 +99,7 @@ class TravelogueLikeControllerTest {
   @DisplayName("좋아요를 누른 게시글에 좋아요를 또 누르면 취소된다.")
   void test_cancel_like() throws Exception {
 
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
 
     mockMvc.perform(put("/api/travelogues/{travelogueId}/likes", travelogue.getId())
             .header("AccessToken", token))

@@ -40,7 +40,7 @@ import shop.zip.travel.domain.post.travelogue.DummyGenerator;
 import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueUpdateReq;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsManager;
 
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
@@ -64,7 +64,7 @@ class TempTravelogueControllerTest {
   private MemberRepository memberRepository;
 
   @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  private JwsManager jwsManager;
 
   private Member member;
   private Travelogue travelogue;
@@ -76,7 +76,7 @@ class TempTravelogueControllerTest {
     List<SubTravelogue> subTravelogues = Arrays.asList(DummyGenerator.createSubTravelogue(1), DummyGenerator.createSubTravelogue(2));
     subTravelogueRepository.saveAll(subTravelogues);
     travelogue = travelogueRepository.save(DummyGenerator.createTravelogueWithSubTravelogues(subTravelogues, member));
-    token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    token = "Bearer " + jwsManager.createAccessToken(member.getId());
   }
 
 
@@ -192,7 +192,7 @@ class TempTravelogueControllerTest {
         "www.naver.com"
     ));
 
-    String notWriterToken = "Bearer " + jwtTokenProvider.createAccessToken(notWriter.getId());
+    String notWriterToken = "Bearer " + jwsManager.createAccessToken(notWriter.getId());
 
     mockMvc.perform(put("/api/travelogues/{travelogueId}", travelogue.getId())
             .header(tokenName, notWriterToken)
@@ -253,7 +253,7 @@ class TempTravelogueControllerTest {
             member)
     );
 
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
 
     mockMvc.perform(patch("/api/travelogues/{travelogueId}/publish", notPublished.getId())
             .header("AccessToken", token))

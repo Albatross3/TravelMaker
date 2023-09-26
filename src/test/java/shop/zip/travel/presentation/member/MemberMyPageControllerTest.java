@@ -34,7 +34,7 @@ import shop.zip.travel.domain.member.repository.MemberRepository;
 import shop.zip.travel.domain.post.travelogue.DummyGenerator;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
-import shop.zip.travel.global.security.JwtTokenProvider;
+import shop.zip.travel.global.security.JwsManager;
 
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
@@ -56,7 +56,7 @@ class MemberMyPageControllerTest {
   private BookmarkRepository bookmarkRepository;
 
   @Autowired
-  private JwtTokenProvider jwtTokenProvider;
+  private JwsManager jwsManager;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -81,7 +81,7 @@ class MemberMyPageControllerTest {
   @Test
   public void get_my_page_info() throws Exception {
 
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
 
     mockMvc.perform(get("/api/members/my/info").header("AccessToken", token))
         .andExpect(status().isOk())
@@ -98,7 +98,7 @@ class MemberMyPageControllerTest {
   @DisplayName("유저는 본인의 프로필 사진과 닉네임을 변경할 수 있다")
   @Test
   public void update_my_profile() throws Exception {
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
     MemberUpdateReq memberUpdateReq = new MemberUpdateReq(
         "test-profile-image-url",
         "testNickname"
@@ -132,7 +132,7 @@ class MemberMyPageControllerTest {
   @DisplayName("유저는 본인이 북마크한 여행기목록을 조회할 수 있다")
   @Test
   public void get_my_bookmark_list() throws Exception {
-    String token = "Bearer " + jwtTokenProvider.createAccessToken(member.getId());
+    String token = "Bearer " + jwsManager.createAccessToken(member.getId());
     Bookmark bookmark = new Bookmark(travelogue, member);
     bookmarkRepository.save(bookmark);
 
