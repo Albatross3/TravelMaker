@@ -32,7 +32,6 @@ public class SecurityConfig {
             .requestMatchers("/api/members/**").permitAll()
             .requestMatchers("/docs/rest-docs.html").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/travelogues/**").permitAll()
-            .requestMatchers("/token").permitAll()
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -53,7 +52,5 @@ public class SecurityConfig {
   public BCryptPasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
-
 
 }

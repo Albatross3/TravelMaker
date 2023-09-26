@@ -25,6 +25,11 @@ public class MemberService {
   private final PasswordEncoder passwordEncoder;
 
   @Transactional(readOnly = true)
+  public boolean checkEmailDuplication(String email) {
+    return memberRepository.existsByEmail(email);
+  }
+
+  @Transactional(readOnly = true)
   public boolean checkNicknameDuplication(String nickname) {
     return memberRepository.existsByNickname(nickname);
   }
@@ -36,26 +41,24 @@ public class MemberService {
     return savedMember.getId();
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   public MemberLoginResponse login(MemberLoginReq memberLoginReq) {
     Member member = findMemberByEmail(memberLoginReq.email());
-
     if (!passwordEncoder.matches(memberLoginReq.password(), member.getPassword())) {
       throw new PasswordNotMatchException(ErrorCode.PASSWORD_NOT_MATCH);
     }
 
     String accessToken = jwsManager.createAccessToken(member.getId());
-
     return new MemberLoginResponse(accessToken);
-  }
-
-  public Member getMember(Long id) {
-    return memberRepository.findById(id)
-        .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
   }
 
   private Member findMemberByEmail(String email) {
     return memberRepository.findByEmail(email)
+        .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+  }
+
+  public Member getMember(Long id) {
+    return memberRepository.findById(id)
         .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
   }
 }

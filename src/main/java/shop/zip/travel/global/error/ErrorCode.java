@@ -22,9 +22,6 @@ public enum ErrorCode {
 	NOT_VALIDATED_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "잘못된 인증 코드입니다"),
 
 	// member
-	DUPLICATED_EMAIL(HttpStatus.CONFLICT, "이메일이 중복입니다"),
-	DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "닉네임이 중복입니다"),
-	EMAIL_NOT_MATCH(HttpStatus.BAD_REQUEST, "이메일이 일치하지 않습니다"),
 	PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "패스워드가 일치하지 않습니다"),
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다"),
 
