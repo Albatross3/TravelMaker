@@ -10,8 +10,7 @@ import shop.zip.travel.domain.member.entity.Member;
 import shop.zip.travel.domain.member.service.MemberService;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSearchFilter;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSimple;
-import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueCreateReq;
-import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueCreateRes;
+import shop.zip.travel.domain.post.travelogue.dto.req.TraveloguePublishRequest;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueCustomSlice;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueDetailRes;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueSimpleRes;
@@ -25,8 +24,6 @@ import shop.zip.travel.global.error.ErrorCode;
 @Service
 @Transactional(readOnly = true)
 public class TravelogueService {
-
-  private static final boolean PUBLISH = true;
 
   private final TravelogueRepository travelogueRepository;
   private final MemberService memberService;
@@ -42,17 +39,13 @@ public class TravelogueService {
   }
 
   @Transactional
-  public TravelogueCreateRes save(TravelogueCreateReq createReq, Long memberId) {
-    Member findMember = memberService.getMember(memberId);
-    Travelogue travelogue = travelogueRepository.save(createReq.toTravelogue(findMember));
-    Long nights = travelogue.getPeriod().getNights();
-    return TravelogueCreateRes.toDto(travelogue.getId(), nights);
+  public void save(TraveloguePublishRequest createReq, Long memberId) {
   }
 
   public TravelogueCustomSlice<TravelogueSimpleRes> getTravelogues(Pageable pageable) {
 
     Slice<TravelogueSimple> travelogues =
-        travelogueRepository.findAllBySlice(pageable, PUBLISH);
+        travelogueRepository.findAllBySlice(pageable);
 
     return TravelogueCustomSlice.toDto(
         travelogues.map(TravelogueSimpleRes::toDto)
@@ -80,7 +73,7 @@ public class TravelogueService {
 
     updateViewCount(travelogueId, canAddViewCount);
 
-    Suggestion suggestion = new Suggestion(travelogue.getCountry().getName(), memberId);
+    Suggestion suggestion = new Suggestion(travelogue.getCountry(), memberId);
     suggestionRepository.save(suggestion);
 
     boolean isWriter = isWriter(travelogue.getMember(), memberId);

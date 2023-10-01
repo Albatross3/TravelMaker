@@ -6,7 +6,7 @@ public record TravelogueSimple(
 		Long travelogueId,
 		String title,
 		Period period,
-		Long totalCost,
+		int totalCost,
 		String country,
 		String thumbnail,
 		String memberNickname,

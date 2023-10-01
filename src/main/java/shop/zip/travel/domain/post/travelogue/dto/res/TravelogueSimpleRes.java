@@ -8,7 +8,7 @@ public record TravelogueSimpleRes(
 		String title,
 		Long nights,
 		Long days,
-		Long totalCost,
+		int totalCost,
 		String country,
 		String thumbnail,
 		MemberSimpleRes member,

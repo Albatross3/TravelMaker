@@ -63,8 +63,8 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
                 travelogue.id,
                 travelogue.title,
                 travelogue.period,
-                travelogue.cost.total,
-                travelogue.country.name,
+                travelogue.cost,
+                travelogue.country,
                 travelogue.thumbnail,
                 travelogue.member.nickname,
                 travelogue.member.profileImageUrl,
@@ -72,7 +72,7 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
             )
         )
         .from(travelogue)
-        .where(travelogue.id.in(travelogueIds).and(publishedIsTrue()))
+        .where(travelogue.id.in(travelogueIds))
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize() + SPARE_PAGE)
         .leftJoin(travelogue.member, member)
@@ -82,8 +82,7 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
         .groupBy(travelogue.id)
         .fetch();
 
-    List<TravelogueSimple> results = new ArrayList<>();
-    results.addAll(travelogueSimpleList);
+    List<TravelogueSimple> results = new ArrayList<>(travelogueSimpleList);
 
     return checkLastPage(pageable, results);
   }
@@ -105,8 +104,8 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
                 travelogue.id,
                 travelogue.title,
                 travelogue.period,
-                travelogue.cost.total,
-                travelogue.country.name,
+                travelogue.cost,
+                travelogue.country,
                 travelogue.thumbnail,
                 travelogue.member.nickname,
                 travelogue.member.profileImageUrl,
@@ -116,8 +115,7 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
         .from(travelogue)
         .where(travelogue.id.in(travelogueIds),
             TraveloguePeriodDaysBetween(searchFilter.minDays(), searchFilter.maxDays()),
-            totalCostBetween(searchFilter.minCost(), searchFilter.maxCost()),
-            travelogue.isPublished.isTrue()
+            totalCostBetween(searchFilter.minCost(), searchFilter.maxCost())
         )
         .leftJoin(travelogue.member, member)
         .leftJoin(like)
@@ -128,14 +126,9 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
         .limit(pageable.getPageSize() + SPARE_PAGE)
         .fetch();
 
-    List<TravelogueSimple> results = new ArrayList<>();
-    results.addAll(travelogueSimpleList);
+    List<TravelogueSimple> results = new ArrayList<>(travelogueSimpleList);
 
     return checkLastPage(pageable, results);
-  }
-
-  private static BooleanExpression publishedIsTrue() {
-    return travelogue.isPublished.isTrue();
   }
 
   private List<Long> getTravelogueIds(String keyword, List<Long> subTravelogueIds) {
@@ -154,7 +147,6 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
         .from(travelogue)
         .leftJoin(travelogue.subTravelogues, subTravelogue)
         .where(
-            publishedIsTrue(),
             subTravelogue.id.in(subTravelogueIds)
         )
         .fetch();
@@ -165,7 +157,6 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
         .select(travelogue.id)
         .from(travelogue)
         .where(
-            publishedIsTrue(),
             titleContains(keyword)
         )
         .fetch();
@@ -178,7 +169,6 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
         .select(travelogue.id)
         .from(travelogue)
         .where(
-            publishedIsTrue(),
             countryContains(keyword)
         )
         .fetch();
@@ -219,7 +209,7 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
   }
 
   private BooleanExpression countryContains(String keyword) {
-    return hasText(keyword) ? travelogue.country.name.contains(keyword) : null;
+    return hasText(keyword) ? travelogue.country.contains(keyword) : null;
   }
 
   private BooleanExpression contentContains(String keyword) {
@@ -258,11 +248,11 @@ public class TravelogueRepositoryImpl extends QuerydslRepositorySupport implemen
   }
 
   private BooleanExpression lowestCostGoe(Long lowest) {
-    return Objects.nonNull(lowest) ? travelogue.cost.total.goe(lowest) : null;
+    return Objects.nonNull(lowest) ? travelogue.cost.goe(lowest) : null;
   }
 
   private BooleanExpression maximumCostLoe(Long maximum) {
-    return Objects.nonNull(maximum) ? travelogue.cost.total.loe(maximum) : null;
+    return Objects.nonNull(maximum) ? travelogue.cost.loe(maximum) : null;
   }
 
   private BooleanExpression totalCostBetween(Long lowest, Long maximum) {

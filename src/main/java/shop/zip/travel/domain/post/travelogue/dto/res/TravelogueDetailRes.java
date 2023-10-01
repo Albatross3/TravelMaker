@@ -17,13 +17,13 @@ public record TravelogueDetailRes(
     String country,
     Long nights,
     Long days,
-    Long totalCost,
+    int totalCost,
     String thumbnail,
     List<SubTravelogueDetailRes> subTravelogues,
     Set<Transportation> transportations,
     Long countLikes,
     boolean isLiked,
-    Long viewCount,
+    int viewCount,
     Boolean bookmarked,
     boolean isWriter
 ) {
@@ -40,10 +40,10 @@ public record TravelogueDetailRes(
         travelogue.getMember().getNickname(),
         travelogue.getId(),
         travelogue.getTitle(),
-        travelogue.getCountry().getName(),
+        travelogue.getCountry(),
         travelogue.getPeriod().getNights(),
         travelogue.getPeriod().getNights() + 1,
-        travelogue.getCost().getTotal(),
+        travelogue.getCost(),
         travelogue.getThumbnail(),
         travelogue.getSubTravelogues()
             .stream()

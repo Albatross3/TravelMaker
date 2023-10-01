@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import shop.zip.travel.domain.post.data.DefaultValue;
 import shop.zip.travel.domain.post.image.dto.TravelPhotoCreateReq;
 import shop.zip.travel.domain.post.image.entity.TravelPhoto;
 import shop.zip.travel.domain.post.subTravelogue.data.Address;
@@ -23,8 +22,8 @@ public record SubTravelogueUpdateReq(
 
     public SubTravelogueUpdate toSubTravelogueUpdate() {
         return new SubTravelogueUpdate(
-            title.isBlank() ? DefaultValue.STRING.getValue() : title,
-            content.isBlank() ? DefaultValue.STRING.getValue() : content,
+            "",
+            "",
             day,
             toAddresses(),
             transportationSet,
