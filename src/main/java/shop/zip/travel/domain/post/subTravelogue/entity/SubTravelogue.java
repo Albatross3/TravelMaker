@@ -6,7 +6,6 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,17 +16,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 import shop.zip.travel.domain.base.BaseTimeEntity;
 import shop.zip.travel.domain.post.image.entity.TravelPhoto;
 import shop.zip.travel.domain.post.subTravelogue.data.Address;
 import shop.zip.travel.domain.post.subTravelogue.data.Transportation;
-import shop.zip.travel.domain.post.subTravelogue.dto.SubTravelogueUpdate;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
-import shop.zip.travel.domain.post.travelogue.exception.InvalidPublishTravelogueException;
-import shop.zip.travel.global.error.ErrorCode;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubTravelogue extends BaseTimeEntity {
 
     private static final int MIN_LENGTH = 0;
@@ -38,13 +39,10 @@ public class SubTravelogue extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50)
+    @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "LONGTEXT")
-    private String content;
-
-    @Column(name = "day_seq", nullable = false)
+    @Column(nullable = false)
     private int day;
 
     @ElementCollection
@@ -57,15 +55,16 @@ public class SubTravelogue extends BaseTimeEntity {
     @Column(nullable = false)
     private Set<Transportation> transportationSet = new HashSet<>();
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String content;
+
     @OneToMany(mappedBy = "subTravelogue")
     private List<TravelPhoto> photos = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "travelogue_id")
     private Travelogue travelogue;
 
-    protected SubTravelogue() {
-    }
 
     public SubTravelogue(String title,
         String content, int day,
@@ -82,39 +81,6 @@ public class SubTravelogue extends BaseTimeEntity {
         this.transportationSet = transportationSet;
         this.photos = photos;
     }
-
-    public Travelogue getTravelogue() {
-        return travelogue;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public int getDay() {
-        return day;
-    }
-
-    public List<Address> getAddresses() {
-        return new ArrayList<>(addresses);
-    }
-
-    public Set<Transportation> getTransportationSet() {
-        return new HashSet<>(transportationSet);
-    }
-
-    public List<TravelPhoto> getPhotos() {
-        return new ArrayList<>(photos);
-    }
-
 
     public void updateTravelogue(Travelogue travelogue) {
         if(travelogue!=null) {
@@ -168,29 +134,5 @@ public class SubTravelogue extends BaseTimeEntity {
             "제목의 길이는 1글자 이상 50글자 이하여야 합니다");
     }
 
-    public void update(SubTravelogueUpdate subTravelogueUpdate) {
-        this.title = subTravelogueUpdate.title();
-        this.content = subTravelogueUpdate.content();
-        this.addresses = subTravelogueUpdate.addresses();
-        this.transportationSet = subTravelogueUpdate.transportationSet();
-        updatePhotos(subTravelogueUpdate.travelPhotoCreateReqs());
-    }
 
-    private void updatePhotos(List<TravelPhoto> newPhotos) {
-        this.photos.clear();
-        this.photos.addAll(newPhotos);
-    }
-
-    private boolean cannotPublish() {
-        return title.isBlank() ||
-            content.isBlank() ||
-            addresses.size() == ZERO;
-    }
-
-    public void verifyPublish() {
-        if (cannotPublish()) {
-            throw new InvalidPublishTravelogueException(ErrorCode.CANNOT_PUBLISH_TRAVELOGUE);
-        }
-        this.addresses.forEach(Address::verifyPublish);
-    }
 }

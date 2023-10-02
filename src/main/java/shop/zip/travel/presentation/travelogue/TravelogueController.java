@@ -3,6 +3,7 @@ package shop.zip.travel.presentation.travelogue;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -27,6 +28,7 @@ import shop.zip.travel.global.security.UserPrincipal;
 import shop.zip.travel.global.util.CookieUtil;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/travelogues")
 public class TravelogueController {
 
@@ -35,12 +37,8 @@ public class TravelogueController {
 
   private final TravelogueService travelogueService;
 
-  public TravelogueController(TravelogueService travelogueService) {
-    this.travelogueService = travelogueService;
-  }
-
   @PostMapping
-  public ResponseEntity<Void> create(
+  public ResponseEntity<Void> publishTravelogue(
       @RequestBody @Valid TraveloguePublishRequest tempTraveloguePublishRequest,
       @AuthenticationPrincipal UserPrincipal userPrincipal
   ) {

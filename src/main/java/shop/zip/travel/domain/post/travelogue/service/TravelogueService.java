@@ -1,6 +1,7 @@
 package shop.zip.travel.domain.post.travelogue.service;
 
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,6 @@ import shop.zip.travel.domain.member.entity.Member;
 import shop.zip.travel.domain.member.service.MemberService;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSearchFilter;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSimple;
-import shop.zip.travel.domain.post.travelogue.dto.req.TraveloguePublishRequest;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueCustomSlice;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueDetailRes;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueSimpleRes;
@@ -22,7 +22,7 @@ import shop.zip.travel.domain.suggestion.repository.SuggestionRepository;
 import shop.zip.travel.global.error.ErrorCode;
 
 @Service
-@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class TravelogueService {
 
   private final TravelogueRepository travelogueRepository;
@@ -30,20 +30,13 @@ public class TravelogueService {
   private final BookmarkRepository bookmarkRepository;
   private final SuggestionRepository suggestionRepository;
 
-  public TravelogueService(TravelogueRepository travelogueRepository, MemberService memberService,
-      BookmarkRepository bookmarkRepository, SuggestionRepository suggestionRepository) {
-    this.travelogueRepository = travelogueRepository;
-    this.memberService = memberService;
-    this.bookmarkRepository = bookmarkRepository;
-    this.suggestionRepository = suggestionRepository;
-  }
-
   @Transactional
-  public void save(TraveloguePublishRequest createReq, Long memberId) {
+  public void publish(Long travelogueId) {
+    // 1. TravelogueId 로 임시저장된 글 불러오기
+    // 2. Entity 로 변환 및 저장
   }
 
   public TravelogueCustomSlice<TravelogueSimpleRes> getTravelogues(Pageable pageable) {
-
     Slice<TravelogueSimple> travelogues =
         travelogueRepository.findAllBySlice(pageable);
 
@@ -52,6 +45,7 @@ public class TravelogueService {
     );
   }
 
+  @Transactional
   public Travelogue getTravelogue(Long id) {
     return travelogueRepository.findById(id)
         .orElseThrow(() -> new TravelogueNotFoundException(ErrorCode.TRAVELOGUE_NOT_FOUND));
@@ -59,6 +53,13 @@ public class TravelogueService {
 
   public TravelogueCustomSlice<TravelogueSimpleRes> search(String keyword, Pageable pageable) {
     return TravelogueCustomSlice.toDto(travelogueRepository.search(keyword, pageable));
+  }
+
+  @Transactional
+  public TravelogueCustomSlice<TravelogueSimpleRes> filtering(String keyword, Pageable pageable,
+      TravelogueSearchFilter searchFilter) {
+    return TravelogueCustomSlice.toDto(
+        travelogueRepository.filtering(keyword, pageable, searchFilter));
   }
 
   @Transactional
@@ -85,12 +86,6 @@ public class TravelogueService {
     if (canAddViewCount) {
       getTravelogue(travelogueId).addViewCount();
     }
-  }
-
-  public TravelogueCustomSlice<TravelogueSimpleRes> filtering(String keyword, Pageable pageable,
-      TravelogueSearchFilter searchFilter) {
-    return TravelogueCustomSlice.toDto(
-        travelogueRepository.filtering(keyword, pageable, searchFilter));
   }
 
   private boolean isWriter(Member writer, Long requestMemberId) {

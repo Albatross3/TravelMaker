@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
 import shop.zip.travel.domain.base.BaseTimeEntity;
 import shop.zip.travel.domain.member.entity.Member;
 import shop.zip.travel.domain.post.subTravelogue.entity.SubTravelogue;
-import shop.zip.travel.domain.post.travelogue.data.Period;
 
 @Entity
 @Getter

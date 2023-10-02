@@ -1,7 +1,7 @@
 package shop.zip.travel.domain.post.travelogue.dto.req;
 
 import java.time.LocalDate;
-import shop.zip.travel.domain.post.travelogue.data.Period;
+import shop.zip.travel.domain.post.travelogue.entity.Period;
 
 public record PeriodCreateReq(
     LocalDate startDate,
