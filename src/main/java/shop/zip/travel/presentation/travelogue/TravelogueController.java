@@ -1,7 +1,5 @@
 package shop.zip.travel.presentation.travelogue;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -11,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSearchFilter;
 import shop.zip.travel.domain.post.travelogue.dto.req.TraveloguePublishRequest;
+import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueStartWriteRequest;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueCustomSlice;
-import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueDetailRes;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueSimpleRes;
 import shop.zip.travel.domain.post.travelogue.service.TravelogueService;
 import shop.zip.travel.global.security.UserPrincipal;
-import shop.zip.travel.global.util.CookieUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +33,18 @@ public class TravelogueController {
   private final TravelogueService travelogueService;
 
   @PostMapping
+  public ResponseEntity<Void> startWritingTravelogue(
+      @RequestBody TravelogueStartWriteRequest travelogueStartWriteRequest) {
+    travelogueService.startWriting(travelogueStartWriteRequest);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping
+  public ResponseEntity<Void> temporarySave() {
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping
   public ResponseEntity<Void> publishTravelogue(
       @RequestBody @Valid TraveloguePublishRequest tempTraveloguePublishRequest,
       @AuthenticationPrincipal UserPrincipal userPrincipal
@@ -46,23 +53,23 @@ public class TravelogueController {
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
-  @PatchMapping("/{travelogueId}")
-  public ResponseEntity<TravelogueDetailRes> get(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      @PathVariable Long travelogueId,
-      @AuthenticationPrincipal UserPrincipal userPrincipal
-  ) {
-    boolean canAddViewCount = CookieUtil.canAddViewCount(request, response, travelogueId);
-    TravelogueDetailRes travelogueDetail =
-        travelogueService.getTravelogueDetail(
-            travelogueId,
-            canAddViewCount,
-            userPrincipal.getUserId()
-        );
-
-    return ResponseEntity.ok(travelogueDetail);
-  }
+//  @PatchMapping("/{travelogueId}")
+//  public ResponseEntity<TravelogueDetailRes> get(
+//      HttpServletRequest request,
+//      HttpServletResponse response,
+//      @PathVariable Long travelogueId,
+//      @AuthenticationPrincipal UserPrincipal userPrincipal
+//  ) {
+//    boolean canAddViewCount = CookieUtil.canAddViewCount(request, response, travelogueId);
+//    TravelogueDetailRes travelogueDetail =
+//        travelogueService.getTravelogueDetail(
+//            travelogueId,
+//            canAddViewCount,
+//            userPrincipal.getUserId()
+//        );
+//
+//    return ResponseEntity.ok(travelogueDetail);
+//  }
 
   @GetMapping
   public ResponseEntity<TravelogueCustomSlice<TravelogueSimpleRes>> getAll(

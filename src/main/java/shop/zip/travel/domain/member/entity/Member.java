@@ -35,7 +35,6 @@ public class Member extends BaseTimeEntity {
   @Column(nullable = false)
   private String profileImageUrl;
 
-
   @Builder
   public Member(String email, String password, String nickname, String birthYear,
       String profileImageUrl) {

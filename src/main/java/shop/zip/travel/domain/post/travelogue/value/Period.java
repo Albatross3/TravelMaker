@@ -1,4 +1,4 @@
-package shop.zip.travel.domain.post.travelogue.entity;
+package shop.zip.travel.domain.post.travelogue.value;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

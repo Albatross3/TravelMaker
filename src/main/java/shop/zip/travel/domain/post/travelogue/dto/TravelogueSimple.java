@@ -1,6 +1,6 @@
 package shop.zip.travel.domain.post.travelogue.dto;
 
-import shop.zip.travel.domain.post.travelogue.entity.Period;
+import shop.zip.travel.domain.post.travelogue.value.Period;
 
 public record TravelogueSimple(
 		Long travelogueId,

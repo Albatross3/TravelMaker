@@ -11,13 +11,12 @@ import shop.zip.travel.domain.member.entity.Member;
 import shop.zip.travel.domain.member.service.MemberService;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSearchFilter;
 import shop.zip.travel.domain.post.travelogue.dto.TravelogueSimple;
+import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueStartWriteRequest;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueCustomSlice;
-import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueDetailRes;
 import shop.zip.travel.domain.post.travelogue.dto.res.TravelogueSimpleRes;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 import shop.zip.travel.domain.post.travelogue.exception.TravelogueNotFoundException;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
-import shop.zip.travel.domain.suggestion.entity.Suggestion;
 import shop.zip.travel.domain.suggestion.repository.SuggestionRepository;
 import shop.zip.travel.global.error.ErrorCode;
 
@@ -26,9 +25,16 @@ import shop.zip.travel.global.error.ErrorCode;
 public class TravelogueService {
 
   private final TravelogueRepository travelogueRepository;
+  // 레디스 저장소 필요
   private final MemberService memberService;
   private final BookmarkRepository bookmarkRepository;
   private final SuggestionRepository suggestionRepository;
+
+  @Transactional
+  public void startWriting(TravelogueStartWriteRequest travelogueStartWriteRequest) {
+    // redis 에 저장 시작
+
+  }
 
   @Transactional
   public void publish(Long travelogueId) {
@@ -62,25 +68,25 @@ public class TravelogueService {
         travelogueRepository.filtering(keyword, pageable, searchFilter));
   }
 
-  @Transactional
-  public TravelogueDetailRes getTravelogueDetail(Long travelogueId, boolean canAddViewCount,
-      Long memberId) {
-    Long countLikes = travelogueRepository.countLikes(travelogueId);
-    boolean isLiked = travelogueRepository.isLiked(memberId, travelogueId);
-    boolean isBookmarked = bookmarkRepository.exists(memberId, travelogueId);
-
-    Travelogue travelogue = travelogueRepository.getTravelogueDetail(travelogueId)
-        .orElseThrow(() -> new TravelogueNotFoundException(ErrorCode.TRAVELOGUE_NOT_FOUND));
-
-    updateViewCount(travelogueId, canAddViewCount);
-
-    Suggestion suggestion = new Suggestion(travelogue.getCountry(), memberId);
-    suggestionRepository.save(suggestion);
-
-    boolean isWriter = isWriter(travelogue.getMember(), memberId);
-
-    return TravelogueDetailRes.toDto(travelogue, countLikes, isLiked, isBookmarked, isWriter);
-  }
+//  @Transactional
+//  public TravelogueDetailRes getTravelogueDetail(Long travelogueId, boolean canAddViewCount,
+//      Long memberId) {
+//    Long countLikes = travelogueRepository.countLikes(travelogueId);
+//    boolean isLiked = travelogueRepository.isLiked(memberId, travelogueId);
+//    boolean isBookmarked = bookmarkRepository.exists(memberId, travelogueId);
+//
+//    Travelogue travelogue = travelogueRepository.getTravelogueDetail(travelogueId)
+//        .orElseThrow(() -> new TravelogueNotFoundException(ErrorCode.TRAVELOGUE_NOT_FOUND));
+//
+//    updateViewCount(travelogueId, canAddViewCount);
+//
+//    Suggestion suggestion = new Suggestion(travelogue.getCountry(), memberId);
+//    suggestionRepository.save(suggestion);
+//
+//    boolean isWriter = isWriter(travelogue.getMemberId(), memberId);
+//
+//    return TravelogueDetailRes.toDto(travelogue, countLikes, isLiked, isBookmarked, isWriter);
+//  }
 
   private void updateViewCount(Long travelogueId, boolean canAddViewCount) {
     if (canAddViewCount) {
