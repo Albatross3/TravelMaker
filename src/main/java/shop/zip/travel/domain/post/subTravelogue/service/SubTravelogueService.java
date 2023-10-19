@@ -2,7 +2,6 @@ package shop.zip.travel.domain.post.subTravelogue.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shop.zip.travel.domain.post.subTravelogue.dto.req.SubTravelogueCreateReq;
 import shop.zip.travel.domain.post.subTravelogue.repository.SubTravelogueRepository;
 import shop.zip.travel.domain.post.travelogue.service.TravelogueService;
 
@@ -19,11 +18,11 @@ public class SubTravelogueService {
         this.travelogueService = travelogueService;
     }
 
-    @Transactional
-    public void save(SubTravelogueCreateReq createReq, Long travelogueId) {
-
-
-    }
+//    @Transactional
+//    public void save(SubTravelogueCreateReq createReq, Long travelogueId) {
+//
+//
+//    }
 
 //    private void addPhotosTo(
 //        SubTravelogue subTravelogue,

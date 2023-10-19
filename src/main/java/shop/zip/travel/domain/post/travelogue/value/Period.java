@@ -1,7 +1,6 @@
 package shop.zip.travel.domain.post.travelogue.value;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
@@ -9,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Period {

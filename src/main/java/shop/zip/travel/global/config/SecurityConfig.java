@@ -31,6 +31,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.OPTIONS).permitAll()
             .requestMatchers("/api/member/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/travelogues/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/travelogues/**").permitAll()
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
