@@ -9,7 +9,6 @@ import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 public interface TravelogueRepository extends MongoRepository<Travelogue, ObjectId> {
 
 
-
 //  @Query("select new shop.zip.travel.domain.post.travelogue.dto.TravelogueSimple("
 //      + "t.id,t.title, t.period, t.cost, t.country, t.thumbnail, m.nickname, m.profileImageUrl, count(l)) "
 //      + "from Travelogue t "

@@ -1,5 +1,6 @@
 package shop.zip.travel.domain.post.travelogue.dto.req;
 
+import java.util.ArrayList;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
 import shop.zip.travel.domain.post.travelogue.value.Period;
 
@@ -20,6 +21,7 @@ public record TravelogueStartWriteRequest(
         .cost(cost)
         .title(title)
         .thumbnail(thumbnail)
+        .subTravelogues(new ArrayList<>())
         .build();
   }
 

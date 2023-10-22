@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shop.zip.travel.domain.post.travelogue.dto.req.TraveloguePublishRequest;
 import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueStartWriteRequest;
+import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueTemporarySaveRequest;
 import shop.zip.travel.domain.post.travelogue.service.TravelogueService;
 import shop.zip.travel.global.security.UserPrincipal;
 
@@ -28,6 +29,13 @@ public class TravelogueController {
   public ResponseEntity<Void> startWritingTravelogue(
       @RequestBody TravelogueStartWriteRequest travelogueStartWriteRequest) {
     travelogueService.startWriting(travelogueStartWriteRequest);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/temporary")
+  public ResponseEntity<Void>  temporarySaveTravelogue(
+      @RequestBody TravelogueTemporarySaveRequest travelogueTemporarySaveRequest) {
+
     return ResponseEntity.ok().build();
   }
 

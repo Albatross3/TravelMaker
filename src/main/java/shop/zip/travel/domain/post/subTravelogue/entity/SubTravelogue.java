@@ -22,9 +22,9 @@ public class SubTravelogue extends BaseTimeEntity {
     @Id
     private ObjectId id;
 
-    private String title;
-
     private int day;
+
+    private String title;
 
     private List<String> places;
 

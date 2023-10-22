@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.zip.travel.domain.member.entity.Member;
 import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueStartWriteRequest;
+import shop.zip.travel.domain.post.travelogue.dto.req.TravelogueTemporarySaveRequest;
 import shop.zip.travel.domain.post.travelogue.entity.Travelogue;
+import shop.zip.travel.domain.post.travelogue.exception.TravelogueNotFoundException;
 import shop.zip.travel.domain.post.travelogue.repository.TravelogueRepository;
+import shop.zip.travel.global.error.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +28,11 @@ public class TravelogueService {
   }
 
   @Transactional
-  public void temporalSave() {
+  public void temporarySave(TravelogueTemporarySaveRequest travelogueTemporarySaveRequest) {
+    // 임시 저장된 mongoDB 컬렉션에서 objectId&day 와 일치하는 SubTravelogue document 가져오고 update
+    Travelogue temporarySavedTravelogue = travelogueRepository.findById(travelogueTemporarySaveRequest.objectId())
+        .orElseThrow(() -> new TravelogueNotFoundException(ErrorCode.TRAVELOGUE_NOT_FOUND));
+//    mongoTemplate.upsert()
 
   }
 
@@ -33,7 +40,9 @@ public class TravelogueService {
   public void publish(Long travelogueId) {
     // 1. TravelogueId 로 임시저장된 글 불러오기
 
-    // 2. Entity 로 변환 및 저장
+    // 1-2 임시저장된 글의 유효성(필수 필드가 저장되었는지 검사) 할 수 있음
+
+    // 2. 불러온 글 그대로 발행 collection 에 저장하기
   }
 
 //  public TravelogueCustomSlice<TravelogueSimpleRes> getTravelogues(Pageable pageable) {
